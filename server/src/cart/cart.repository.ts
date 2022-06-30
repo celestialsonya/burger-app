@@ -30,7 +30,7 @@ export class CartRepository{
 
     }
 
-    async addNewProduct(body: CreateProductDto){
+    async addNewProduct(body: CreateProductDto): Promise<number>{
 
         const {name, description, price, type} = body
         const sql = "insert into product (name, description, price, type) values ($1, $2, $3, $4) returning id"
