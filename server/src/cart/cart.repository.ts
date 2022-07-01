@@ -43,7 +43,7 @@ export class CartRepository{
     }
 
     async addProductByCart(cartId: number, productId: number){
-        const sql = "insert into cart_product (cart_id, product_id, quantity) values ($1,$2,$3) on conflict (product_id) do update set quantity = quantity + 1 where cart_id = $1 and product_id = $2"
+        const sql  = ``
         const values = [cartId, productId, 1]
         const {rows} = await client.query(sql, values)
         const {cart_id, product_id, quantity} = rows[0]
@@ -53,7 +53,7 @@ export class CartRepository{
     }
 
     async deleteProductByCart(cartId: number, productId: number){
-        const sql = "delete from cart_product where cart_id = $1 and product_id = $2 returning cart_id, product_id limit 1"
+        const sql = `UPDATE `
         const values = [cartId, productId]
         const {rows} = await client.query(sql, values)
         const {cart_id, product_id} = rows[0]

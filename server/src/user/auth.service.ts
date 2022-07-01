@@ -7,9 +7,10 @@ export class AuthService{
     constructor() {
     }
 
-    async register(body: CreateUserDto){
+    async register(dto: CreateUserDto){
 
-        const {login, password} = body
+
+        const {login, password} = dto
 
         const sql = "insert into users (login, password) values ($1, $2) returning id"
         const values = [login, password]
@@ -36,5 +37,25 @@ export class AuthService{
 
         return id
     }
+
+    async isLoginTaken(login: string):Promise<boolean>{
+
+        const sql = "select id from users where login = $1"
+        const values = [login]
+
+        const {rows} = await client.query(sql, values)
+
+        if (rows.length > 0) { return true }
+        return false
+    }
+
+    generateAccessToken(id: number, cartId: any): string{
+        const payload = {id, cartId}
+        return jwt.sign(payload, process.env.SECRET, {expiresIn: "1h"} )
+    }
+
+
+
+
 
 }

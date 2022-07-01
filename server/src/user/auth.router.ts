@@ -3,10 +3,11 @@ import {AuthController} from "./auth.controller";
 import {AuthService} from "./auth.service";
 import {check} from "express-validator";
 import {AuthMiddleware} from "./middleware/auth.middleware"
+import {cartService} from "../cart/cart.router";
 
 const authRouter = express.Router()
 const authService = new AuthService()
-const authController = new AuthController(authService)
+const authController = new AuthController(authService,cartService)
 
 
 authRouter.post("/register", [
