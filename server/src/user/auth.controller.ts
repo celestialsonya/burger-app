@@ -5,53 +5,48 @@ import db from "../db";
 import client from "../db";
 import {Result, validationResult} from "express-validator";
 import jwt from "jsonwebtoken";
-import {SECRET} from "../config"
 
-import {cartController, cartService} from "../cart/cart.router";
+require('dotenv').config()
+import {CartService} from "../cart/cart.service";
 
-function generateAccessToken(id: number, cartId: any){
-    const payload = {id, cartId}
-    return jwt.sign(payload, SECRET, {expiresIn: "1h"} )
-}
 
 export class AuthController {
 
-    constructor(private authService: AuthService) {
+    private authService: AuthService
+    private cartService: CartService
+
+    constructor(authService: AuthService, cartService: CartService) {
+        this.authService = authService
+        this.cartService = cartService
         this.register = this.register.bind(this)
         this.login = this.login.bind(this)
     }
 
     async register(req: Request, res: Response){
-
         const errors = validationResult(req)
-
-        if (!errors.isEmpty()){
-            const message = errors.array()[0].msg
-            return res.status(400).send(`Ошибка регистрации: ${message}`)
-        }
-
-        const body: CreateUserDto = req.body
-        const {login} = body
-
+        const dto: CreateUserDto = req.body
         try {
-
-            const sql= "select id from users where login = $1"
-            const values = [login]
-
-            const {rows} = await client.query(sql, values)
-            if (rows.length){
+            if (!errors.isEmpty()){
+                throw new Error("validation") // see catch
+            }
+            const ok = await this.authService.isLoginTaken(dto.login)
+            if (!ok){
                 return res.status(400).send("Пользователь с таким именем уже существует")
             }
 
-            const id = await this.authService.register(body)
-            const cartId = await cartController.createCart(req, res, id)
-
-            const token = generateAccessToken(id, cartId)
+            const id = await this.authService.register(dto)
+            const cartId = await this.cartService.createCart(id)
+            const token = this.authService.generateAccessToken(id, cartId)
 
             return res.status(201).send({id, cartId, token})
 
-        } catch (e){
+        } catch (e: any){
             console.log(e)
+            const msg = e.message
+            if(msg === "validation"){
+                const message = errors.array()[0].msg
+                return res.status(400).send(`Ошибка регистрации: ${message}`)
+            }
             return res.status(400).send("bad request!!")
         }
 
@@ -77,10 +72,9 @@ export class AuthController {
                 return res.status(400).send("Неверный пароль")
             }
 
-            const cartId = await cartController.getCart(req, res, id)
+            const cartId = await this.cartService.getCart(id)
 
-            const token = generateAccessToken(id, cartId)
-            console.log(id, cartId, token)
+            const token = this.authService.generateAccessToken(id, cartId)
             return res.status(200).send({id, cartId, token})
 
         } catch (e){
