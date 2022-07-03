@@ -76,15 +76,29 @@ export class CartRepository{
 
         // checking for quantity
 
-        const sql = `delete from cart_product
-            where cart_id = $1 and product_id = $2 returning cart_id, product_id limit 1
-        `
-
+        const sql = "select quantity from cart_product where cart_id = $1 and product_id = $2"
         const values = [cartId, productId]
-        const {rows} = await client.query(sql, values)
-        const {cart_id, product_id} = rows[0]
 
-        return {cart_id, product_id}
+        const {rows} = await client.query(sql, values)
+        const {quantity} = rows[0]
+        console.log(quantity)
+
+        // if the quantity exist and not 0:
+
+        if (quantity){
+            const sql = "update cart_product set quantity = quantity - 1 where cart_id = $1 and product_id = $2 returning *"
+            const {rows} = await client.query(sql, values)
+            const {cart_id, product_id, quantity} = rows[0]
+
+            return {cart_id, product_id, quantity}
+        }
+
+        // if the quantity not exist or equal 0:
+
+        if (quantity === 0 || !quantity) {
+            throw "this product not found:("
+        }
+
     }
 
 }
