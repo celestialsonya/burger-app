@@ -101,4 +101,45 @@ export class CartRepository{
 
     }
 
+    async clearCart(cartId: number){
+
+        const sql = "delete from cart_product where cart_id = $1 returning *"
+        const values = [cartId]
+        const {rows} = await client.query(sql, values)
+
+        return rows
+
+    }
+
+    async getProductsByCart(cartId: number){
+
+        // getting all products array:
+
+        const sqlGetting = "select product_id from cart_product where cart_id = $1"
+        const values = [cartId]
+        const {rows} = await client.query(sqlGetting, values)
+
+        const productIds = rows.map(p => p.product_id)
+        console.log(productIds)
+
+        // we get all products array, example -> [ 2, 3, 5 ]
+
+        function parseIds(productIds: number[]){
+            const whereString = productIds.map((id, i) => {
+                if (i !== productIds.length - 1){
+                    return `p.id = ${id} or`
+                }
+                return `p.id = ${id}`
+            }).join(" ")
+            console.log(whereString)
+            const sql = `select p.id, p.name, p.description, p.price, p.category, cp.quantity from product p join cart_product cp on cp.product_id = p.id where ${whereString} and cp.cart_id = $1`
+            return sql
+        }
+
+        const sql = parseIds(productIds)
+        const data = await client.query(sql, values)
+
+        return data.rows
+    }
+
 }

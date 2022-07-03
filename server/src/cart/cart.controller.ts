@@ -12,6 +12,8 @@ export class CartController{
         this.addNewProduct = this.addNewProduct.bind(this)
         this.addProductByCart = this.addProductByCart.bind(this)
         this.deleteProductByCart = this.deleteProductByCart.bind(this)
+        this.clearCart = this.clearCart.bind(this)
+        this.getProductsByCart = this.getProductsByCart.bind(this)
     }
 
     async createCart(req: Request, res: Response, userId: number){
@@ -75,6 +77,34 @@ export class CartController{
         } catch (e) {
             console.log(e)
             return res.status(404).send("Error deleting cart!!")
+        }
+
+    }
+
+    async clearCart(req: Request, res: Response){
+
+        const {cartId} = req.userData
+
+        try {
+            const deletedProductsId = await this.cartService.clearCart(cartId)
+            return res.status(200).send({deletedProductsId})
+        } catch (e) {
+            console.log(e)
+            return res.status(404).send("Error clearing cart!!")
+        }
+
+    }
+
+    async getProductsByCart(req: Request, res: Response){
+
+        const {cartId} = req.userData
+
+        try {
+            const products = await this.cartService.getProductsByCart(cartId)
+            return res.status(200).send({products})
+        } catch (e) {
+            console.log(e)
+            return res.status(404).send("Error getting products!!")
         }
 
     }

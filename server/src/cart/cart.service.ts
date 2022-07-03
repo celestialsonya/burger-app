@@ -29,4 +29,12 @@ export class CartService{
         return this.cartRepository.deleteProductByCart(cartId, productId)
     }
 
+    async clearCart(cartId: number){
+        return this.cartRepository.clearCart(cartId)
+    }
+
+    async getProductsByCart(cartId: number){
+        return this.cartRepository.getProductsByCart(cartId)
+    }
+
 }
