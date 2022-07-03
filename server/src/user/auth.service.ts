@@ -3,14 +3,16 @@ import client from "../db";
 import jwt from "jsonwebtoken"
 
 export class AuthService{
-
+    //artem: inject repository with constructor
     constructor() {
+
+        //artem: dont forget to .bind(this) each method
     }
 
     async register(body: CreateUserDto){
-
+        //artem: rename body to dto
         const {login, password} = body
-
+        //artem: use repository to make sql requests
         const sql = "insert into users (login, password) values ($1, $2) returning id"
         const values = [login, password]
 

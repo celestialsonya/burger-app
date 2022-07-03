@@ -1,0 +1,1 @@
+DROP TABLE cart, cart_product, users, product
