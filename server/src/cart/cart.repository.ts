@@ -120,7 +120,6 @@ export class CartRepository{
         const {rows} = await client.query(sqlGetting, values)
 
         const productIds = rows.map(p => p.product_id)
-        console.log(productIds)
 
         // we get all products array, example -> [ 2, 3, 5 ]
 
@@ -131,8 +130,10 @@ export class CartRepository{
                 }
                 return `p.id = ${id}`
             }).join(" ")
-            console.log(whereString)
-            const sql = `select p.id, p.name, p.description, p.price, p.category, cp.quantity from product p join cart_product cp on cp.product_id = p.id where ${whereString} and cp.cart_id = $1`
+            const sql = `
+                select p.id, p.name, p.description, p.price, p.category, cp.quantity from product
+                p join cart_product cp on cp.product_id = p.id where cp.cart_id = $1 AND ${whereString}`
+
             return sql
         }
 
