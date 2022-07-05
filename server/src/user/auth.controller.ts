@@ -7,23 +7,21 @@ import {Result, validationResult} from "express-validator";
 import jwt from "jsonwebtoken";
 
 //artem: never use global imports to use dependencies ( use constructor )
-import {cartController, cartService} from "../cart/cart.router";
+import {CartService} from "../cart/cart.service"
 
-function generateAccessToken(id: number, cartId: any){
-    const payload = {id, cartId}
-    return jwt.sign(payload, process.env.SECRET , {expiresIn: "1h"} )
-}
 
 export class AuthController {
 
 
     //artem: inject cartService instead of cartController with constructor
     private authService: AuthService
+    private cartService: CartService
 
-    constructor(authService: AuthService) {
+    constructor(authService: AuthService, cartService: CartService) {
         this.authService = authService
         this.register = this.register.bind(this)
         this.login = this.login.bind(this)
+        this.cartService = cartService
     }
 
     async register(req: Request, res: Response){
@@ -52,10 +50,10 @@ export class AuthController {
             const id = await this.authService.register(body)
 
             //artem: never use global imports. Inject cartService. Delete method `createCart` from cartController
-            const cartId = await cartController.createCart(req, res, id)
+            const cartId = await this.cartService.createCart(id)
 
             //to service
-            const token = generateAccessToken(id, cartId)
+            const token = this.authService.generateAccessToken(id, cartId)
 
             return res.status(201).send({id, cartId, token})
 
@@ -86,9 +84,9 @@ export class AuthController {
                 return res.status(400).send("Неверный пароль")
             }
 
-            const cartId = await cartController.getCart(req, res, id)
+            const cartId = await this.cartService.getCart(id)
             //artem: move this to authService
-            const token = generateAccessToken(id, cartId)
+            const token = this.authService.generateAccessToken(id, cartId)
 
             return res.status(200).send({id, cartId, token})
 

@@ -9,6 +9,11 @@ export class AuthService{
         //artem: dont forget to .bind(this) each method
     }
 
+    generateAccessToken(id: number, cartId: any){
+        const payload = {id, cartId}
+        return jwt.sign(payload, process.env.SECRET , {expiresIn: "1h"} )
+    }
+
     async register(body: CreateUserDto){
         //artem: rename body to dto
         const {login, password} = body

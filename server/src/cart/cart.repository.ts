@@ -131,13 +131,14 @@ export class CartRepository{
                 }
                 return `p.id = ${id}`
             }).join(" ")
-            console.log(whereString)
-            const sql = `select p.id, p.name, p.description, p.price, p.category, cp.quantity from product p join cart_product cp on cp.product_id = p.id where ${whereString} and cp.cart_id = $1`
+
+            const sql = `select p.id, p.name, p.description, p.price, p.category, cp.quantity from product p join cart_product cp on cp.product_id = p.id where cp.cart_id = $1 and ${whereString}`
             return sql
         }
 
         const sql = parseIds(productIds)
         const data = await client.query(sql, values)
+        console.log(data.rows)
 
         return data.rows
     }
