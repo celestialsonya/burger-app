@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import {SECRET} from "../../config";
 import {Response} from "express";
+require("dotenv").config()
 
 export function AuthMiddleware(req: any, res: Response, next: any){
 
@@ -12,7 +12,7 @@ export function AuthMiddleware(req: any, res: Response, next: any){
     const token = header.toString().split(" ")[1]
 
     try{
-        const data: any = jwt.verify(token, SECRET)
+        const data: any = jwt.verify(token, process.env.SECRET)
 
         req.userData = {
             userId: data.id,

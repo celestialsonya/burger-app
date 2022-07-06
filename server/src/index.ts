@@ -1,5 +1,5 @@
 import express from "express";
-import authRouter from "./user/auth.router"
+import authRouter from "./auth/auth.router"
 import cartRouter from "./cart/cart.router"
 
 const app = express()

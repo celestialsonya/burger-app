@@ -4,11 +4,13 @@ import {AuthService} from "./auth.service";
 import {check} from "express-validator";
 import {AuthMiddleware} from "./middleware/auth.middleware"
 import {cartService} from "../cart/cart.router";
+import {AuthRepository} from "./auth.repository";
+import db from "../db";
 
 const authRouter = express.Router()
-const authService = new AuthService()
+const authRepository = new AuthRepository(db)
+const authService = new AuthService(authRepository)
 const authController = new AuthController(authService, cartService)
-
 
 authRouter.post("/register", [
     check('login', "имя не может быть пустым").notEmpty(),

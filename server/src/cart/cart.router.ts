@@ -3,7 +3,7 @@ import {CartService} from "./cart.service"
 import {CartRepository} from "./cart.repository";
 import db from "../db";
 import {CartController} from "./cart.controller";
-import {AuthMiddleware} from "../user/middleware/auth.middleware"
+import {AuthMiddleware} from "../auth/middleware/auth.middleware"
 
 const cartRouter = express.Router()
 const cartRepository = new CartRepository(db)
