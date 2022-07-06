@@ -23,7 +23,7 @@ export class AuthRepository{
         const data = await client.query(sqlCheck, valuesCheck)
 
         if (data.rows.length){
-            throw new UserAlreadyExists("User with this name already exist!!")
+            throw new UserAlreadyExists()
         }
 
         // create auth and adding to database:
@@ -48,7 +48,7 @@ export class AuthRepository{
         const {rows} = await client.query(sql, values)
 
         if (!rows.length){
-            throw new UserDoesNotExist("User not found!!")
+            throw new UserDoesNotExist()
         }
 
         // check is valid password or not:
@@ -57,7 +57,7 @@ export class AuthRepository{
         const id = rows[0].id
 
         if (password != dbPassword){
-            throw new InvalidPassword("Invalid password!!")
+            throw new InvalidPassword()
         }
 
         return id

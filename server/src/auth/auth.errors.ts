@@ -1,30 +1,27 @@
 
 export class UserDoesNotExist extends Error{
 
-    constructor(message: string) {
+    constructor() {
         super();
-        this.message = message
     }
     statusCode = 404
-    message: string
+    message: string = "User not found!!"
 }
 
 export class InvalidPassword extends Error{
 
-    constructor(message: string) {
+    constructor() {
         super();
-        this.message = message
     }
     statusCode = 401
-    message: string
+    message: string = "Invalid password!!"
 }
 
 export class UserAlreadyExists extends Error{
 
-    constructor(message: string) {
+    constructor() {
         super();
-        this.message = message
     }
     statusCode = 403
-    message: string
+    message: string = "User with this name already exist!!"
 }
