@@ -1,6 +1,8 @@
 import client from "../db"
 import {Client} from "pg";
 import {CreateProductDto} from "./dto/create-product.dto";
+import {Product} from "../entities/Product";
+import {CartProduct} from "../entities/CartProduct";
 
 export class CartRepository{
 
@@ -30,19 +32,19 @@ export class CartRepository{
 
     }
 
-    async addNewProduct(body: CreateProductDto): Promise<number>{
+    async addNewProduct(body: CreateProductDto): Promise<Product>{
 
         const {name, description, price, category} = body
-        const sql = "insert into product (name, description, price, category) values ($1, $2, $3, $4) returning id"
+        const sql = "insert into product (name, description, price, category) values ($1, $2, $3, $4) returning *"
         const values = [name, description, price, category]
         const {rows} = await client.query(sql, values)
-        const {id} = rows[0]
+        const product: Product = rows[0]
 
-        return id
+        return product
 
     }
 
-    async addProductByCart(cartId: number, productId: number){
+    async addProductByCart(cartId: number, productId: number): Promise<CartProduct>{
 
         // checking if there is a product
         const sqlChecking = "select * from cart_product where cart_id = $1 and product_id = $2"
@@ -52,9 +54,9 @@ export class CartRepository{
         if (rows.length) {
             const sql = "update cart_product set quantity = quantity + 1 where cart_id = $1 and product_id = $2 returning *"
             const {rows} = await client.query(sql, valuesChecking)
-            const {cart_id, product_id, quantity} = rows[0]
+            const product: CartProduct = rows[0]
 
-            return {cart_id, product_id, quantity}
+            return product
         }
 
         // if product is not found:
@@ -65,14 +67,14 @@ export class CartRepository{
             const values = [cartId, productId, quantityDefault]
 
             const {rows} = await client.query(sql, values)
-            const {cart_id, product_id, quantity} = rows[0]
+            const product: CartProduct = rows[0]
 
-            return {cart_id, product_id, quantity}
+            return product
         }
 
     }
 
-    async deleteProductByCart(cartId: number, productId: number){
+    async deleteProductByCart(cartId: number, productId: number): Promise<CartProduct>{
 
         // checking for quantity
 
@@ -81,43 +83,44 @@ export class CartRepository{
 
         const {rows} = await client.query(sql, values)
         const {quantity} = rows[0]
-        console.log(quantity)
 
         // if the quantity exist and not 0:
 
         if (quantity){
             const sql = "update cart_product set quantity = quantity - 1 where cart_id = $1 and product_id = $2 returning *"
             const {rows} = await client.query(sql, values)
-            const {cart_id, product_id, quantity} = rows[0]
+            const product: CartProduct = rows[0]
 
-            return {cart_id, product_id, quantity}
+            return product
         }
 
         // if the quantity not exist or equal 0:
 
-        if (quantity === 0 || !quantity) {
-            throw "this product not found:("
+        if (!quantity) {
+            return null
         }
 
     }
 
-    async clearCart(cartId: number){
+    async clearCart(cartId: number): Promise<CartProduct[]>{
 
         const sql = "delete from cart_product where cart_id = $1 returning *"
         const values = [cartId]
         const {rows} = await client.query(sql, values)
+        const deletedProducts: CartProduct[] = rows
 
-        return rows
+        return deletedProducts
 
     }
 
-    async getProductsByCart(cartId: number){
+    async getProductsByCart(cartId: number): Promise<Product[]>{
 
         const sql = `select p.id, p.name, p.description, p.price, p.category, cp.quantity from product p join cart_product cp on cp.product_id = p.id where cp.cart_id = $1`
         const values = [cartId]
         const data = await client.query(sql, values)
+        const products: Product[] = data.rows
 
-        return data.rows
+        return products
     }
 
 }

@@ -1,6 +1,9 @@
 import {CartService} from "./cart.service";
 import {Request, Response} from "express";
 import {CreateProductDto} from "./dto/create-product.dto";
+import {Product} from "../entities/Product";
+import {UserAlreadyExists} from "../auth/auth.errors";
+import {ProductNotFound} from "./cart.errors";
 
 export class CartController{
 
@@ -41,8 +44,8 @@ export class CartController{
 
         const body: CreateProductDto = req.body
         try {
-            const id = await this.cartService.addNewProduct(body)
-            return res.status(200).send({id})
+            const product = await this.cartService.addNewProduct(body)
+            return res.status(200).send({product})
         } catch (e) {
             console.log(e)
             return res.status(404).send("Error adding cart!!")
@@ -72,11 +75,14 @@ export class CartController{
 
         try {
             const deletedProduct = await this.cartService.deleteProductByCart(cartId, productId)
-            console.log(deletedProduct)
             return res.status(200).send({deletedProduct})
         } catch (e) {
             console.log(e)
-            return res.status(404).send("Error deleting cart!!")
+            if (e instanceof ProductNotFound){
+                return res.status(e.statusCode).send(e.message)
+            }
+
+            return res.status(404).send("Error deleting product!!")
         }
 
     }
