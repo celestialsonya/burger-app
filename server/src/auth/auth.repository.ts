@@ -1,6 +1,6 @@
 import client from "../db"
 import {Client} from "pg";
-import {InvalidPassword, UserAlreadyExists, UserDoesNotExist} from "./auth.errors";
+import {InvalidUsername, UserAlreadyExists, UserDoesNotExist} from "./auth.errors";
 import {CreateUserDto} from "./dto/create-user.dto";
 
 export class AuthRepository{
@@ -15,10 +15,10 @@ export class AuthRepository{
 
         // check is there a auth with this name:
 
-        const {login, password} = dto
+        const {username, phone_number} = dto
 
-        const sqlCheck = "select id from users where login = $1"
-        const valuesCheck = [login]
+        const sqlCheck = "select id from users where phone_number = $1"
+        const valuesCheck = [phone_number]
 
         const data = await client.query(sqlCheck, valuesCheck)
 
@@ -28,8 +28,8 @@ export class AuthRepository{
 
         // create auth and adding to database:
 
-        const sql = "insert into users (login, password) values ($1, $2) returning id"
-        const values = [login, password]
+        const sql = "insert into users (username, phone_number) values ($1, $2) returning id"
+        const values = [username, phone_number]
 
         const {rows} = await client.query(sql, values)
         const {id} = rows[0]
@@ -39,25 +39,25 @@ export class AuthRepository{
 
     async login(dto: CreateUserDto){
 
-        // checking whether the auth exist by login:
+        // checking whether the auth exist by phone number:
 
-        const {login, password} = dto
+        const {username, phone_number} = dto
 
-        const sql = "select id, password from users where login = $1"
-        const values = [login]
+        const sql = "select id, username from users where phone_number = $1"
+        const values = [phone_number]
         const {rows} = await client.query(sql, values)
 
         if (!rows.length){
             throw new UserDoesNotExist()
         }
 
-        // check is valid password or not:
+        // check is valid username or not:
 
-        const dbPassword = rows[0].password
+        const dbUsername = rows[0].username
         const id = rows[0].id
 
-        if (password != dbPassword){
-            throw new InvalidPassword()
+        if (username != dbUsername){
+            throw new InvalidUsername()
         }
 
         return id

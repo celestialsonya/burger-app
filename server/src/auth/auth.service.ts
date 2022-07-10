@@ -1,7 +1,7 @@
 import {CreateUserDto} from "./dto/create-user.dto";
 import client from "../db";
 import jwt from "jsonwebtoken"
-import {InvalidPassword, UserDoesNotExist, UserAlreadyExists} from "./auth.errors";
+import {InvalidUsername, UserDoesNotExist, UserAlreadyExists} from "./auth.errors";
 import {AuthRepository} from "./auth.repository";
 
 export class AuthService{

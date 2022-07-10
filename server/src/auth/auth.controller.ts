@@ -6,7 +6,7 @@ import client from "../db";
 import {Result, validationResult} from "express-validator";
 
 import {CartService} from "../cart/cart.service"
-import {InvalidPassword, UserAlreadyExists, UserDoesNotExist} from "./auth.errors";
+import {InvalidUsername, UserAlreadyExists, UserDoesNotExist, UsernameIsEmpty} from "./auth.errors";
 
 
 export class AuthController {
@@ -53,11 +53,11 @@ export class AuthController {
 
     async login(req: Request, res: Response) {
 
-        const body: CreateUserDto = req.body
+        const dto: CreateUserDto = req.body
 
         try {
 
-            const id = await this.authService.login(body)
+            const id = await this.authService.login(dto)
             const cartId = await this.cartService.getCart(id)
             const token = this.authService.generateAccessToken(id, cartId)
 
@@ -68,7 +68,7 @@ export class AuthController {
             if (e instanceof UserDoesNotExist){
                 return res.status(e.statusCode).send(e.message)
             }
-            if (e instanceof InvalidPassword){
+            if (e instanceof InvalidUsername){
                 return res.status(e.statusCode).send(e.message)
             }
 

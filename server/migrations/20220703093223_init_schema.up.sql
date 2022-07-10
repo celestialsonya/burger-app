@@ -1,7 +1,7 @@
 CREATE TABLE "users"(
     "id" serial primary key,
     "username" varchar(255) not null,
-    "phone_number" integer not null
+    "phone_number" varchar(255) not null
 );
 
 CREATE TABLE "product"(
@@ -39,7 +39,7 @@ CREATE TABLE "orders"(
     "order_id" serial primary key,
     "user_id" integer not null,
     "cart_id" integer not null,
-    "phone_number" integer not null,
+    "phone_number" varchar(255) not null,
     "amount" integer not null,
     "delivery" boolean not null,
     "delivery_details" json not null,
