@@ -43,8 +43,6 @@ CREATE TABLE "orders"(
     "amount" integer not null,
     "delivery" boolean not null,
     "delivery_details" json not null,
-    "comment" varchar(255),
-    "username" varchar(255) not null,
     "status" varchar(255) not null,
     "data" varchar(255) not null,
     CONSTRAINT user_id_fk
