@@ -6,7 +6,7 @@ import {CartController} from "./cart.controller";
 import {AuthMiddleware} from "../auth/middleware/auth.middleware"
 
 const cartRouter = express.Router()
-const cartRepository = new CartRepository(db)
+export const cartRepository = new CartRepository(db)
 export const cartService = new CartService(cartRepository)
 export const cartController = new CartController(cartService)
 

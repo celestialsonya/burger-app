@@ -46,7 +46,8 @@ export class CartRepository{
 
     async addProductByCart(cartId: number, productId: number): Promise<CartProduct>{
 
-        // checking if there is a product
+        // checking if there is a product:
+
         const sqlChecking = "select * from cart_product where cart_id = $1 and product_id = $2"
         const valuesChecking = [cartId, productId]
         const {rows} = await client.query(sqlChecking, valuesChecking)

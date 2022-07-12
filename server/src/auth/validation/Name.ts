@@ -7,7 +7,7 @@ export function Name(username: string): void{
     }
 
     const ok = username.split(" ")
-    if (ok.length !== 2){
+    if (ok.length !== 2 || ok[0].length < 2 || ok[1].length < 3){
         throw new IncorrectUsername()
     }
 

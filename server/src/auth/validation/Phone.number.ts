@@ -3,7 +3,7 @@ export function PhoneNumber(phone: string): boolean{
 
     // +79120250157 || 89120250157 || bye
 
-    if (phone[0] === "+" && phone.length === 12){
+    if (phone[0] === "+" && phone[1] === "7" && phone.length === 12){
         return true
     }
 

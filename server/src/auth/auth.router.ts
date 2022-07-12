@@ -10,7 +10,7 @@ import {ValidationMiddleware} from "./validation/Validation.middleware";
 
 const authRouter = express.Router()
 const authRepository = new AuthRepository(db)
-const authService = new AuthService(authRepository)
+export const authService = new AuthService(authRepository)
 const authController = new AuthController(authService, cartService)
 
 authRouter.post("/register", ValidationMiddleware, authController.register)
