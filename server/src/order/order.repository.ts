@@ -7,6 +7,7 @@ import {AuthService} from "../auth/auth.service";
 import {CartProduct} from "../entities/CartProduct";
 import client from "../db";
 import db from "../db";
+import {DeliveryDetails} from "../entities/DeliveryDetails";
 
 export class OrderRepository{
 
@@ -22,7 +23,8 @@ export class OrderRepository{
 
     async createOrder(dto: any){
 
-        const {cart, username, phone_number, delivery, delivery_details} = dto
+        const {cart, username, phone_number, delivery} = dto
+        let delivery_details: DeliveryDetails = dto.delivery_details
 
         // checking whether the user exists:
 
@@ -90,15 +92,33 @@ export class OrderRepository{
             }
             const data = await currentData()
 
+            // checking whether delivery is needed:
+
+            let delivery: boolean = false
+            if (delivery_details){
+                delivery = true
+            }
+
+            let deliveryDetails = null
+            if (delivery){
+                deliveryDetails = JSON.stringify(delivery_details)
+            }
+
             // create order:
 
             const sqlCreateOrder = `insert into orders (user_id, cart, username,
-                phone_number, amount, delivery, status, data) values ($1, $2, $3, 
-                $4, $5, $6, $7, $8) returning *`
+                phone_number, amount, delivery, delivery_details, status, data) values ($1, $2, $3, 
+                $4, $5, $6, $7, $8, $9) returning *`
 
-            const valuesCreateOrder = [userId, cartProducts, username, phone_number, amount, false, "not confirmed", data]
+            const valuesCreateOrder = [userId, cartProducts, username, phone_number, amount, delivery, deliveryDetails, "not confirmed", data]
             const orderData = await this.client.query(sqlCreateOrder, valuesCreateOrder)
             const order = orderData.rows[0]
+
+            // clearing cart_product tables:
+
+            const sqlClear = "delete from cart_product where cart_id = $1"
+            const valuesClear = [cartId]
+            const clear = await this.client.query(sqlClear, valuesClear)
 
             return order
         }
