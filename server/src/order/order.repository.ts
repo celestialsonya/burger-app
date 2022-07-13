@@ -6,6 +6,7 @@ import {CartProduct} from "../entities/CartProduct";
 import {DeliveryDetails} from "../entities/DeliveryDetails";
 import {calculateAmount} from "../hooks/calculateAmount";
 import {getCurrentData} from "../hooks/getCurrentData";
+import {SpamOrders} from "./order.errors";
 
 export class OrderRepository{
 
@@ -135,6 +136,17 @@ export class OrderRepository{
 
             const data = await getCurrentData()
 
+            // checking the time interval between orders:
+
+            const lastOrder = await this.getLastOrderById(userId)
+
+            const lastData = lastOrder.data.slice(24, 29)
+            const nowData = data.slice(24, 29)
+
+            if (lastData === nowData || parseInt(nowData.slice(3,5)) < parseInt(lastData.slice(3,5)) + 3){
+                throw new SpamOrders()
+            }
+
             // checking whether delivery is needed:
 
             let delivery: boolean = false
@@ -168,4 +180,12 @@ export class OrderRepository{
 
     }
 
+    async getLastOrderById(userId: number): Promise<Order>{
+        const sql = "select * from orders where user_id = $1"
+        const values = [userId]
+        const {rows} = await this.client.query(sql, values)
+        const orders: Order = rows[rows.length - 1]
+
+        return orders
+    }
 }

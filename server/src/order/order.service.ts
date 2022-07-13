@@ -14,4 +14,8 @@ export class OrderService{
     async createOrder(dto: any): Promise<Order>{
         return this.orderRepository.createOrder(dto)
     }
+
+    async getLastOrderById(userId: number): Promise<Order>{
+        return this.orderRepository.getLastOrderById(userId)
+    }
 }
