@@ -21,6 +21,7 @@ export class OrderController{
             return res.status(200).send({order})
         } catch (e){
             console.log(e)
+            return res.status(400).send("error creating order!!")
         }
     }
 }

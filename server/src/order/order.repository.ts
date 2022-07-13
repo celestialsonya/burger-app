@@ -21,7 +21,7 @@ export class OrderRepository{
     }
 
     async createOrder(dto: any){
-        console.log(1)
+
         const {cart, username, phone_number, delivery, delivery_details} = dto
 
         // checking whether the user exists:
@@ -83,25 +83,22 @@ export class OrderRepository{
             // getting current data:
 
             async function currentData(){
-                const sql = "select current_date"
-                const {rows} = await client.query(sql)
-                const {current_date} = rows[0]
-
-                return current_date
+                let data: any = new Date(Date.now())
+                const time = data.toLocaleTimeString().slice(0, 5)
+                data = `date: ${data.toLocaleDateString()}, time: ${time}`
+                return data
             }
-
             const data = await currentData()
 
             // create order:
 
             const sqlCreateOrder = `insert into orders (user_id, cart, username,
                 phone_number, amount, delivery, status, data) values ($1, $2, $3, 
-                $4, $5, $6, $7, $8, $9) returning *`
+                $4, $5, $6, $7, $8) returning *`
 
-            const valuesCreateOrder = [userId, cartProducts, username, phone_number, amount, true, "not confirmed", data]
+            const valuesCreateOrder = [userId, cartProducts, username, phone_number, amount, false, "not confirmed", data]
             const orderData = await this.client.query(sqlCreateOrder, valuesCreateOrder)
-            const order = orderData.rows
-            console.log(order)
+            const order = orderData.rows[0]
 
             return order
         }
