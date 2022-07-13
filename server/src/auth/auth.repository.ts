@@ -13,9 +13,32 @@ export class AuthRepository{
 
     async register(dto: CreateUserDto): Promise<number>{
 
-        // check is there a auth with this name:
-
         const {username, phone_number} = dto
+
+        // checking on identical number phone:
+
+        if (phone_number[0] === "+"){
+            let otherNumber = "8" + phone_number.slice(2, 12)
+            const sql = "select id from users where phone_number = $1"
+            const values = [otherNumber]
+            const {rows} = await client.query(sql, values)
+            if (rows.length){
+                throw new UserAlreadyExists()
+            }
+        }
+
+        if (phone_number[0] === "8"){
+            let otherNumber = "+7" + phone_number.slice(1, 11)
+            console.log(otherNumber)
+            const sql = "select id from users where phone_number = $1"
+            const values = [otherNumber]
+            const {rows} = await client.query(sql, values)
+            if (rows.length){
+                throw new UserAlreadyExists()
+            }
+        }
+
+        // check is there a auth with this name:
 
         const sqlCheck = "select id from users where phone_number = $1"
         const valuesCheck = [phone_number]
