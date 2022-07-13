@@ -2,6 +2,7 @@ import {OrderService} from "./order.service";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {OrderRepository} from "./order.repository";
 import {Request, Response} from "express";
+import {Order} from "../entities/Order";
 
 export class OrderController{
 
@@ -17,7 +18,7 @@ export class OrderController{
         const dto = req.body
 
         try {
-            const order = await this.orderRepository.createOrder(dto)
+            const order: Order = await this.orderService.createOrder(dto)
             return res.status(200).send({order})
         } catch (e){
             console.log(e)

@@ -1,13 +1,11 @@
 import {Client} from "pg";
-import {CreateOrderDto} from "./dto/create-order.dto";
 import {Order} from "../entities/Order";
-import {AuthRepository} from "../auth/auth.repository";
 import {CartRepository} from "../cart/cart.repository";
 import {AuthService} from "../auth/auth.service";
 import {CartProduct} from "../entities/CartProduct";
-import client from "../db";
-import db from "../db";
 import {DeliveryDetails} from "../entities/DeliveryDetails";
+import {calculateAmount} from "../hooks/calculateAmount";
+import {getCurrentData} from "../hooks/getCurrentData";
 
 export class OrderRepository{
 
@@ -21,7 +19,7 @@ export class OrderRepository{
         this.authService = authService
     }
 
-    async createOrder(dto: any){
+    async createOrder(dto: any): Promise<Order>{
 
         const {cart, username, phone_number, delivery} = dto
         let delivery_details: DeliveryDetails = dto.delivery_details
@@ -31,6 +29,8 @@ export class OrderRepository{
         const sqlCheck = "select id from users where phone_number = $1"
         const valuesCheck = [phone_number]
         const {rows} = await this.client.query(sqlCheck, valuesCheck)
+
+        // if user does not exist:
 
         if (!rows.length){
 
@@ -63,34 +63,10 @@ export class OrderRepository{
             })
 
             // calculate amount:
-
-            async function calculateAmount(){
-
-                const sqlAmount = "select price, quantity from cart_product cp join product p on cp.product_id = p.id where cp.cart_id = $1"
-                const valuesAmount = [cartId]
-                const data = await client.query(sqlAmount, valuesAmount)
-                const price = data.rows
-
-                // we get: [ { price: 210, quantity: 2 }, { price: 270, quantity: 5 } ]
-
-                let amount: number = 0
-                price.map((o) => {
-                    amount += o.price * o.quantity
-                })
-
-                return amount
-            }
-            const amount = await calculateAmount()
+            const amount = await calculateAmount(cartId)
 
             // getting current data:
-
-            async function currentData(){
-                let data: any = new Date(Date.now())
-                const time = data.toLocaleTimeString().slice(0, 5)
-                data = `date: ${data.toLocaleDateString()}, time: ${time}`
-                return data
-            }
-            const data = await currentData()
+            const data = await getCurrentData()
 
             // checking whether delivery is needed:
 
@@ -125,7 +101,71 @@ export class OrderRepository{
 
         // if user already exist:
 
-        return null
+        if (rows.length){
+
+            // getting userId and cartId:
+
+            const userId = rows[0].id
+            const cartId = await this.cartRepository.getCart(userId)
+
+            // generate token:
+
+            const token = this.authService.generateAccessToken(userId, cartId)
+
+            // from localStorage we get all products and put body =>
+            // example cart = cart = [ {"product_id": 1, "quantity": 2}, {"product_id": 2, "quantity": 5} ]
+
+            const cartProducts = cart.map((p: any) => {
+                return JSON.stringify(p)
+            })
+
+            // added to cart_product:
+
+            cart.map(async (p: CartProduct) => {
+                const values = [cartId, p.product_id, p.quantity]
+                const sql = `insert into cart_product (cart_id, product_id, quantity) values ($1, $2, $3) returning *`
+                const {rows} = await this.client.query(sql, values)
+            })
+
+            // calculate amount:
+
+            const amount = await calculateAmount(cartId)
+
+            // getting current data:
+
+            const data = await getCurrentData()
+
+            // checking whether delivery is needed:
+
+            let delivery: boolean = false
+            if (delivery_details){
+                delivery = true
+            }
+
+            let deliveryDetails = null
+            if (delivery){
+                deliveryDetails = JSON.stringify(delivery_details)
+            }
+
+            // create order:
+
+            const sqlCreateOrder = `insert into orders (user_id, cart, username,
+                phone_number, amount, delivery, delivery_details, status, data) values ($1, $2, $3, 
+                $4, $5, $6, $7, $8, $9) returning *`
+
+            const valuesCreateOrder = [userId, cartProducts, username, phone_number, amount, delivery, deliveryDetails, "not confirmed", data]
+            const orderData = await this.client.query(sqlCreateOrder, valuesCreateOrder)
+            const order = orderData.rows[0]
+
+            // clearing cart_product tables:
+
+            const sqlClear = "delete from cart_product where cart_id = $1"
+            const valuesClear = [cartId]
+            const clear = await this.client.query(sqlClear, valuesClear)
+
+            return order
+        }
+
     }
 
 }
