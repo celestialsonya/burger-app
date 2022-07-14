@@ -1,6 +1,6 @@
 
 export type User = {
     id?: number
-    login: string
-    password: string
+    username: string
+    phone_number: string
 }

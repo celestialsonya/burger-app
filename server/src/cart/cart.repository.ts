@@ -7,7 +7,6 @@ import {CartProduct} from "../entities/CartProduct";
 export class CartRepository{
 
     private client: Client
-
     constructor(db: Client) {
         this.client = db
     }
@@ -21,7 +20,7 @@ export class CartRepository{
         return id
     }
 
-    async getCart(userId: number){
+    async getCart(userId: number): Promise<number>{
 
         const sql = "select id from cart where user_id = $1"
         const values = [userId]
@@ -109,7 +108,7 @@ export class CartRepository{
         const values = [cartId]
         const {rows} = await client.query(sql, values)
         const deletedProducts: CartProduct[] = rows
-
+        console.log(deletedProducts)
         return deletedProducts
 
     }

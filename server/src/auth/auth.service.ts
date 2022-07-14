@@ -1,8 +1,8 @@
 import {CreateUserDto} from "./dto/create-user.dto";
-import client from "../db";
 import jwt from "jsonwebtoken"
 import {InvalidUsername, UserDoesNotExist, UserAlreadyExists} from "./auth.errors";
 import {AuthRepository} from "./auth.repository";
+import {User} from "../entities/User";
 
 export class AuthService{
 
@@ -17,11 +17,37 @@ export class AuthService{
     }
 
     async register(dto: CreateUserDto): Promise<number>{
-        return await this.authRepository.register(dto)
+
+        const {username, phone_number} = dto
+
+        // check if user already exists:
+        const user: User = await this.authRepository.getByNumber(phone_number)
+        if (user){
+            throw new UserAlreadyExists()
+        }
+
+        // create user:
+        return this.authRepository.register(dto)
+
     }
 
     async login(dto: CreateUserDto): Promise<number>{
-        return await this.authRepository.login(dto)
+
+        const {username, phone_number} = dto
+
+        // checking whether the auth exist by phone number:
+
+        const user: User = await this.authRepository.getByNumber(phone_number)
+        if (!user){
+            throw new UserDoesNotExist()
+        }
+
+        // check for correct username:
+        if (username !== user.username){
+            throw new InvalidUsername()
+        }
+
+        return user.id
     }
 
 }

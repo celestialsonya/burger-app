@@ -1,9 +1,7 @@
 import {OrderService} from "./order.service";
-import {CreateOrderDto} from "./dto/create-order.dto";
 import {OrderRepository} from "./order.repository";
 import {Request, Response} from "express";
 import {Order} from "../entities/Order";
-import {UserAlreadyExists} from "../auth/auth.errors";
 import {SpamOrders} from "./order.errors";
 
 export class OrderController{

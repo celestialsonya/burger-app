@@ -1,13 +1,9 @@
 
 export function PhoneNumber(phone: string): boolean{
 
-    // +79120250157 || 89120250157 || bye
+    // +79120250157 || bye
 
-    if (phone[0] === "+" && phone[1] === "7" && phone.length === 12){
-        return true
-    }
-
-    if (phone[0] === "8" && phone.length === 11){
+    if (phone[0] === "+" && phone[1] === "7" && phone[2] === "9" && phone.length === 12){
         return true
     }
 

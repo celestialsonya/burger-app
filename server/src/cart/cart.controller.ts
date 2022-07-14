@@ -1,8 +1,6 @@
 import {CartService} from "./cart.service";
 import {Request, Response} from "express";
 import {CreateProductDto} from "./dto/create-product.dto";
-import {Product} from "../entities/Product";
-import {UserAlreadyExists} from "../auth/auth.errors";
 import {ProductNotFound} from "./cart.errors";
 
 export class CartController{

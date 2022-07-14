@@ -7,7 +7,6 @@ import {ProductNotFound} from "./cart.errors";
 export class CartService{
 
     private cartRepository: CartRepository
-
     constructor(cartRepository: CartRepository) {
         this.cartRepository = cartRepository
     }

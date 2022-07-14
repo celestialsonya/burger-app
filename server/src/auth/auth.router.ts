@@ -9,12 +9,12 @@ import db from "../db";
 import {ValidationMiddleware} from "./validation/Validation.middleware";
 
 const authRouter = express.Router()
-const authRepository = new AuthRepository(db)
-export const authService = new AuthService(authRepository)
+export const authRepository = new AuthRepository(db)
+const authService = new AuthService(authRepository)
 const authController = new AuthController(authService, cartService)
 
 authRouter.post("/register", ValidationMiddleware, authController.register)
-authRouter.post("/login", authController.login)
+authRouter.post("/login", ValidationMiddleware, authController.login)
 authRouter.get("/getUsers", AuthMiddleware, authController.getUsers)
 
 export default authRouter

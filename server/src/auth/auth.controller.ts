@@ -3,10 +3,10 @@ import {CreateUserDto} from "./dto/create-user.dto";
 import {AuthService} from "./auth.service";
 
 import client from "../db";
-import {Result, validationResult} from "express-validator";
+import {validationResult} from "express-validator";
 
 import {CartService} from "../cart/cart.service"
-import {InvalidUsername, UserAlreadyExists, UserDoesNotExist, UsernameIsEmpty} from "./auth.errors";
+import {InvalidUsername, UserAlreadyExists, UserDoesNotExist} from "./auth.errors";
 
 
 export class AuthController {
