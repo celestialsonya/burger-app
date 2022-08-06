@@ -36,7 +36,6 @@ export class AuthService{
         const {username, phone_number} = dto
 
         // checking whether the auth exist by phone number:
-
         const user: User = await this.authRepository.getByNumber(phone_number)
         if (!user){
             throw new UserDoesNotExist()

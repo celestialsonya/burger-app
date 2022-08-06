@@ -5,8 +5,8 @@ import {Order} from "../entities/Order";
 import {DeliveryDetails} from "../entities/DeliveryDetails";
 import {User} from "../entities/User";
 import {AuthRepository} from "../auth/auth.repository";
-import {calculateAmount} from "../hooks/calculateAmount";
-import {getCurrentData} from "../hooks/getCurrentData";
+import {calculateAmount} from "../helpers/calculateAmount";
+import {getCurrentData} from "../helpers/getCurrentData";
 import {SpamOrders} from "./order.errors";
 
 export class OrderService{
@@ -111,10 +111,5 @@ export class OrderService{
         }
 
     }
-
-    async getLastOrderById(userId: number): Promise<Order>{
-        return this.orderRepository.getLastOrderById(userId)
-    }
-
 
 }

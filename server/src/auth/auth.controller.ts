@@ -1,13 +1,10 @@
 import {Request, Response} from "express";
 import {CreateUserDto} from "./dto/create-user.dto";
 import {AuthService} from "./auth.service";
-
 import client from "../db";
 import {validationResult} from "express-validator";
-
 import {CartService} from "../cart/cart.service"
 import {InvalidUsername, UserAlreadyExists, UserDoesNotExist} from "./auth.errors";
-
 
 export class AuthController {
 
@@ -16,15 +13,14 @@ export class AuthController {
 
     constructor(authService: AuthService, cartService: CartService) {
         this.authService = authService
+        this.cartService = cartService
         this.register = this.register.bind(this)
         this.login = this.login.bind(this)
-        this.cartService = cartService
     }
 
     async register(req: Request, res: Response){
 
         const errors = validationResult(req)
-
         if (!errors.isEmpty()){
             const message = errors.array()[0].msg
             return res.status(400).send(`Ошибка регистрации: ${message}`)

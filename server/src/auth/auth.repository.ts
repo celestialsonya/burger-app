@@ -18,6 +18,7 @@ export class AuthRepository{
         if (rows.length > 0){
             return rows[0]
         }
+
         return null
     }
 
